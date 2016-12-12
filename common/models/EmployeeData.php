@@ -11,9 +11,15 @@ use Yii;
  * @property string $emp_name
  * @property integer $emp_exp
  * @property integer $emp_salary
+ * @property integer $status
+ * @property integer $created_at
+ * @property integer $updated_at
  */
 class EmployeeData extends \yii\db\ActiveRecord
 {
+    const EMPLOYEE_ACTIVE = 10;
+    const EMPLOYEE_INACTIVE = -10;
+    const EMPLOYEE_NEW = 0;
     /**
      * @inheritdoc
      */
@@ -28,8 +34,8 @@ class EmployeeData extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['emp_name'], 'required'],
-            [['emp_exp', 'emp_salary'], 'integer'],
+            [['emp_name', 'created_at', 'updated_at'], 'required'],
+            [['emp_exp', 'emp_salary', 'status', 'created_at', 'updated_at'], 'integer'],
             [['emp_name'], 'string', 'max' => 64],
         ];
     }
@@ -44,15 +50,9 @@ class EmployeeData extends \yii\db\ActiveRecord
             'emp_name' => 'Emp Name',
             'emp_exp' => 'Emp Exp',
             'emp_salary' => 'Emp Salary',
+            'status' => 'Status',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
         ];
-    }
-
-    /**
-     * @inheritdoc
-     * @return EmployeeDataQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new EmployeeDataQuery(get_called_class());
     }
 }

@@ -76,6 +76,9 @@ class EmployeeController extends  Controller   {
             $employee->emp_name = $faker->name;
             $employee->emp_salary = intval( round( rand( $this->salaryRange[ $exp ][0], $this->salaryRange[ $exp ][1] ) / 1000 ) ) * 1000;
             $employee->emp_exp = $exp;
+            $employee->status = EmployeeData::EMPLOYEE_ACTIVE;
+            $employee->created_at = time();
+            $employee->updated_at = time();
 
             if( !$employee->save() ){
                 var_dump($employee->errors );

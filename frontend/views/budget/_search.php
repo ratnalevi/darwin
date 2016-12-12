@@ -13,7 +13,7 @@ use yii\widgets\ActiveForm;
     <?php $form = ActiveForm::begin([
         'id' => 'login-form',
         'action' => ['budget'],
-        'method' => 'post',
+        'method' => 'get',
         'enableClientValidation' => true,
     ]);
     ?>

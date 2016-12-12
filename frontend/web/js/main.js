@@ -22,14 +22,12 @@ $('#login-form').on('beforeSubmit', function(event, jqXHR, settings) {
                 className.addClass('has-error');
                 var name = $('.' + 'field-' + $(this)[0].id + ' label').html();
                 $('.' + 'field-' + $(this)[0].id + ' .help-block').html( name + ' cannot be empty');
-                console.log( name + ' cannot be empty' );
                 errors++;
             }
         }
     });
 
     if( errors > 0 ){
-        console.log('Found errors');
         return false;
     }
 
@@ -44,7 +42,6 @@ $('#login-form').on('beforeSubmit', function(event, jqXHR, settings) {
             console.log(data);
             if( data.senior.length > 0 || data.junior.length > 0 ) {
 
-                console.log('response');
                 for (i = 0; i < data.senior.length; i++) {
                     var newRow = '<tr class="js-added-dev-row">\
                     <td class="tg-b7b8">' + data.senior[i].id + '</td>\
@@ -70,13 +67,11 @@ $('#login-form').on('beforeSubmit', function(event, jqXHR, settings) {
                 $('#empty-div').css('display', 'none');
                 $('#success-div').css('display', 'block');
             }else{
-                console.log('resp error');
                 $('#empty-div').css('display', 'block');
                 $('#success-div').css('display', 'none');
             }
         },
         error : function( data ){
-            console.log('ajax error');
             $('#empty-div').css('display', 'block');
             $('#success-div').css('display', 'none');
         }

@@ -9,7 +9,7 @@ use Yii;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-
+use yii\filters\AccessControl;
 
 /**
  * BudgetController implements the CRUD actions for Budget model.
@@ -22,6 +22,17 @@ class BudgetController extends Controller
     public function behaviors()
     {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['index'],
+                'rules' => [
+                    [
+                        'actions' => ['index'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
@@ -35,6 +46,7 @@ class BudgetController extends Controller
      * Lists all Budget models.
      * @return mixed
      */
+
     public function actionIndex()
     {
         $searchModel = new BudgetSearch();
@@ -53,6 +65,7 @@ class BudgetController extends Controller
      * @return Budget the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
+
     protected function findModel($id)
     {
         if (($model = Budget::findOne($id)) !== null) {
@@ -64,22 +77,47 @@ class BudgetController extends Controller
 
     public function actionBudget(){
 
+        $response = [
+            'senior' => [
+
+            ],
+            'junior' => [
+
+            ],
+        ];
+
         $model = new BudgetSearch();
-        $model->load( Yii::$app->request->post() );
+        $model->load( Yii::$app->request->get() );
+
+        $avgSeniorSalary = $model->budget / $model->senior_dev;
+        $avgJuniorSalary = $model->budget / $model->junior_dev;
+
+        $seniorSalaryRange = [ 0, round( $avgSeniorSalary * 100 / 100 ) ];
+        $juniorSalaryRange = [ 0, round( $avgJuniorSalary * 100 / 100 ) ];
+
         if (Yii::$app->request->isAjax ) {
 
             // the main logic should come here
             Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-            $seniorDev = EmployeeData::find()->andWhere(['>', 'emp_exp', 3 ])->limit(5)->all();
-            $response = [
-                'senior' => [
+            $seniorDev = EmployeeData::find()
+                ->andWhere(['>', 'emp_exp', 3 ])
+                ->andWhere([ 'emp_salary' => $seniorSalaryRange])
+                ->orderBy( ['emp_exp' => SORT_DESC])
+                ->limit( 2 * $model->senior_dev )
+                ->all();
 
-                ],
-                'junior' => [
+            $juniorDev = EmployeeData::find()
+                ->andWhere(['<=', 'emp_exp', 3 ])
+                ->andWhere([ 'emp_salary' => $juniorSalaryRange])
+                ->orderBy( ['emp_exp' => SORT_DESC])
+                ->limit( 2 * $model->junior_dev )
+                ->all();
 
-                ],
-            ];
+
+            /* @var $dev EmployeeData */
+
+            // analyse the response and check for the matching fit
 
             foreach( $seniorDev as $dev ){
                 $response['senior'][] = [
@@ -89,7 +127,7 @@ class BudgetController extends Controller
                     'salary' => $dev->emp_salary,
                 ];
             }
-            $juniorDev = EmployeeData::find()->andWhere(['<=', 'emp_exp', 3 ])->limit(5)->all();
+
             foreach( $juniorDev as $dev ){
                 $response['junior'][] = [
                     'id' => $dev->id,
