@@ -45,49 +45,60 @@ class EmployeeController extends  Controller   {
             $isDelete = strtolower( readline('You want to delete previous entries (yes|no):  ') );
         }while( $isDelete !== 'yes' && $isDelete !== 'no' );
 
-        if( $isDelete === 'yes' ){
-            print "Deleting all old records\n";
-            EmployeeData::deleteAll();
+        $connection = \Yii::$app->db;
+        $transaction = $connection->beginTransaction();
+
+        try{
+            if( $isDelete === 'yes' ){
+                print "Deleting all old records\n";
+                EmployeeData::deleteAll();
+            }
+
+            $seniorDev = 0;
+            $juniorDev = 0;
+
+            for( $i = 0; $i < $empCount; $i++ ) {
+
+                $empType = round( rand(0, 100) / 10 );
+                if( $empType < 4 ){
+                    $empType = $this::JUNIOR;
+                }else{
+                    $empType = $this::SENIOR;
+                }
+
+                if( $empType == $this::SENIOR ){
+                    $exp = $faker->numberBetween( $this->seniorExp[0], $this->seniorExp[1] );
+                    $seniorDev++;
+                }elseif( $empType == $this::JUNIOR ){
+                    $exp = $faker->numberBetween( $this->juniorExp[0], $this->juniorExp[1] );
+                    $juniorDev++;
+                }else {
+                    continue;
+                }
+
+                $employee = new EmployeeData();
+                $employee->emp_name = $faker->name;
+                $employee->emp_salary = intval( round( rand( $this->salaryRange[ $exp ][0], $this->salaryRange[ $exp ][1] ) / 1000 ) ) * 1000;
+                $employee->emp_exp = $exp;
+                $employee->status = EmployeeData::EMPLOYEE_ACTIVE;
+                $employee->created_at = time();
+                $employee->updated_at = time();
+
+                if( !$employee->save() ){
+                    var_dump($employee->errors );
+                }
+
+                print "Summary of script\n";
+                print "\tJunior Developers : $juniorDev\n";
+                print "\tSenior Developers : $seniorDev\n";
+                $transaction->commit();
+                return true;
+            }
+        }catch( \Exception $e ){
+            printf( "ERROR : %s", $e->getMessage() );
+            $transaction->rollBack();
+            return false;
         }
-
-        $seniorDev = 0;
-        $juniorDev = 0;
-
-        for( $i = 0; $i < $empCount; $i++ ) {
-
-            $empType = round( rand(0, 100) / 10 );
-            if( $empType < 4 ){
-                $empType = $this::JUNIOR;
-            }else{
-                $empType = $this::SENIOR;
-            }
-
-            if( $empType == $this::SENIOR ){
-                $exp = $faker->numberBetween( $this->seniorExp[0], $this->seniorExp[1] );
-                $seniorDev++;
-            }elseif( $empType == $this::JUNIOR ){
-                $exp = $faker->numberBetween( $this->juniorExp[0], $this->juniorExp[1] );
-                $juniorDev++;
-            }else {
-                continue;
-            }
-
-            $employee = new EmployeeData();
-            $employee->emp_name = $faker->name;
-            $employee->emp_salary = intval( round( rand( $this->salaryRange[ $exp ][0], $this->salaryRange[ $exp ][1] ) / 1000 ) ) * 1000;
-            $employee->emp_exp = $exp;
-            $employee->status = EmployeeData::EMPLOYEE_ACTIVE;
-            $employee->created_at = time();
-            $employee->updated_at = time();
-
-            if( !$employee->save() ){
-                var_dump($employee->errors );
-            }
-        }
-
-        print "Summary of script\n";
-        print "\tJunior Developers : $juniorDev\n";
-        print "\tSenior Developers : $seniorDev\n";
 
     }
 }
