@@ -50,7 +50,7 @@ environments/            contains environment-based overrides
 Steps for installing this template
 =========================================
 Make sure you have php, apache and mysql is installed on your machine before you proceed further.
-
+```
 Check php by using `php -v`
 Output should be like : 
 PHP 5.6.25 (cli) (built: Sep  6 2016 16:37:16) 
@@ -65,6 +65,7 @@ Server built:   Aug  8 2016 16:31:34
 Check mysql by using `which mysql`
 Output should be like :
 /usr/local/bin/mysql
+```
 
 Once you ensure you have entire stack, pull the latest version of code to your folder.
 
@@ -76,6 +77,7 @@ Apache config file :
 Path ( in general unix machines ) : /etc/apache2/extra/httpd-vhosts.conf
 Add the following virtual hosts
 
+```
 <VirtualHost *:80>
     ServerAdmin levi@darwinbox.com
     DocumentRoot "yourfolder/darwin/fronend"
@@ -89,19 +91,22 @@ Add the following virtual hosts
     ServerName backend.darwinbox.com
     ServerAlias www.backend.darwinbox.com
 </VirtualHost>
+```
 
 Once done add these host entries in your hosts file.
 Path ( in general unix machines ) : /etc/hosts
 
+```
 127.0.0.1 backend.darwinbox.com
 127.0.0.1 frontend.darwinbox.com
+```
 
 Now comes the configuration for database.
 We use main-local.php for configuring the database, since db configurations will be different for different environments we will not upload this to git code.
 If not present create a file "main-local.php" in common/config.
 
 Make sure you have the following db component in your config file.
-
+```
 <?php
 return [
     'components' => [
@@ -114,6 +119,7 @@ return [
         ],
     ],
 ];
+```
 
 Make sure you configure your db port properly in the above configuration.
 
